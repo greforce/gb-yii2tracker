@@ -3,6 +3,8 @@
 namespace common\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\behaviors\BlameableBehavior;
 
 /**
  * This is the model class for table "task".
@@ -11,6 +13,7 @@ use Yii;
  * @property string $title
  * @property string $description
  * @property int $estimation
+ * @property int $project_id
  * @property int $executor_id
  * @property int $started_at
  * @property int $completed_at
@@ -22,6 +25,7 @@ use Yii;
  * @property User $createdBy
  * @property User $executor
  * @property User $updatedBy
+ * @property Project $project
  */
 class Task extends \yii\db\ActiveRecord
 {
@@ -39,13 +43,22 @@ class Task extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['title', 'description', 'estimation', 'created_by', 'created_at'], 'required'],
+            [['title', 'description', 'estimation', 'created_at'], 'required'],
             [['description'], 'string'],
             [['estimation', 'executor_id', 'started_at', 'completed_at', 'created_by', 'updated_by', 'created_at', 'updated_at'], 'integer'],
+            [['project_id'], 'exist', 'skipOnError' => true, 'targetClass' => Project::className(), 'targetAttribute' => ['project_id' => 'id']],
             [['title'], 'string', 'max' => 255],
             [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['created_by' => 'id']],
             [['executor_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['executor_id' => 'id']],
             [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['updated_by' => 'id']],
+        ];
+    }
+
+    public function behaviors()
+    {
+        return [
+            TimestampBehavior::className(),
+            BlameableBehavior::className(),
         ];
     }
 
@@ -59,6 +72,7 @@ class Task extends \yii\db\ActiveRecord
             'title' => 'Title',
             'description' => 'Description',
             'estimation' => 'Estimation',
+            'project_id' => 'Project ID',
             'executor_id' => 'Executor ID',
             'started_at' => 'Started At',
             'completed_at' => 'Completed At',
@@ -75,6 +89,14 @@ class Task extends \yii\db\ActiveRecord
     public function getCreatedBy()
     {
         return $this->hasOne(User::className(), ['id' => 'created_by']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getProject()
+    {
+        return $this->hasOne(Project::className(), ['id' => 'project_id']);
     }
 
     /**
