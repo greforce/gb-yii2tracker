@@ -16,10 +16,13 @@ use yii\web\IdentityInterface;
  * @property string $password_reset_token
  * @property string $email
  * @property string $auth_key
+ * @property string $avatar
  * @property integer $status
  * @property integer $created_at
  * @property integer $updated_at
  * @property string $password write-only password
+ *
+ * @mixin getThumbUploadUrl
  */
 class User extends ActiveRecord implements IdentityInterface
 {
@@ -28,6 +31,12 @@ class User extends ActiveRecord implements IdentityInterface
     const STATUS_ACTIVE = 10;
     const SCENARIO_ADMIN_CREATE = 'admin_create';
     const SCENARIO_ADMIN_UPDATE = 'admin_update';
+    const STATUSES = [
+        self::STATUS_DELETED => 'удален',
+        self::STATUS_ACTIVE => 'активен',
+    ];
+    const AVATAR_THUMB = 'thumb';
+    const AVATAR_PREVIEW = 'preview';
 
     /**
      * {@inheritdoc}
@@ -44,6 +53,18 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return [
             TimestampBehavior::className(),
+            [
+                'class' => \mohorev\file\UploadImageBehavior::class,
+                'attribute' => 'avatar',
+                'scenarios' => [self::SCENARIO_ADMIN_CREATE, self::SCENARIO_ADMIN_UPDATE],
+                'placeholder' => '@app/modules/user/assets/images/userpic.jpg',
+                'path' => '@frontend/web/upload/avatar/{id}',
+                'url' => 'http://y2aa-frontend.test/upload/avatar/{id}',
+                'thumbs' => [
+                    self::AVATAR_THUMB => ['width' => 50, 'height' =>50],
+                    self::AVATAR_PREVIEW => ['width' => 200, 'height' => 200],
+                ],
+            ],
         ];
     }
 
@@ -58,6 +79,7 @@ class User extends ActiveRecord implements IdentityInterface
             [['password', 'email', 'username'], 'required', 'on' => [self::SCENARIO_ADMIN_CREATE, self::SCENARIO_ADMIN_UPDATE]],
             ['email', 'email', 'on' => [self::SCENARIO_ADMIN_CREATE, self::SCENARIO_ADMIN_UPDATE]],
             ['username', 'unique', 'on' => [self::SCENARIO_ADMIN_CREATE, self::SCENARIO_ADMIN_UPDATE]],
+            ['avatar', 'image', 'extensions' => 'jpg, jpeg, gif, png', 'on' => [self::SCENARIO_ADMIN_CREATE, self::SCENARIO_ADMIN_UPDATE]],
         ];
     }
 

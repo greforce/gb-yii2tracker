@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
+use \common\models\User;
 /* @var $this yii\web\View */
 /* @var $searchModel common\models\UserSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
@@ -28,13 +29,19 @@ $this->params['breadcrumbs'][] = $this->title;
 
             'id',
             'username',
-            'auth_key',
-            'password_hash',
-            'password_reset_token',
-            //'email:email',
-            //'status',
-            //'created_at',
-            //'updated_at',
+            // 'auth_key',
+            // 'password_hash',
+            // 'password_reset_token',
+            'email:email',
+            [
+                'attribute' => 'status',
+                'filter' => User::STATUSES,
+                'value' => function($model) {
+                    return User::STATUSES[$model->status];
+                },
+            ],
+            'created_at:datetime',
+            'updated_at:datetime',
 
             ['class' => 'yii\grid\ActionColumn'],
         ],
