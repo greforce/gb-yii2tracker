@@ -5,6 +5,7 @@ namespace common\models;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\behaviors\BlameableBehavior;
+use lhs\Yii2SaveRelationsBehavior\SaveRelationsBehavior;
 
 /**
  * This is the model class for table "project".
@@ -18,12 +19,20 @@ use yii\behaviors\BlameableBehavior;
  * @property int $created_at
  * @property int $updated_at
  *
- * @property User $createdBy
- * @property User $updatedBy
+ * @property User $creator
+ * @property User $updater
  * @property ProjectUser[] $projectUsers
  */
 class Project extends \yii\db\ActiveRecord
 {
+    const RELATION_PROJECT_USERS = 'projectUsers';
+    const STATUS_NOTACTIVE = 0;
+    const STATUS_ACTIVE = 1;
+    const STATUSES = [
+        self::STATUS_NOTACTIVE => 'неактивен',
+        self::STATUS_ACTIVE => 'активен',
+    ];
+
     /**
      * {@inheritdoc}
      */
@@ -38,7 +47,7 @@ class Project extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['title', 'description', 'created_at'], 'required'],
+            [['title', 'description'], 'required'],
             [['description'], 'string'],
             [['active'], 'boolean'],
             [['created_by', 'updated_by', 'created_at', 'updated_at'], 'integer'],
@@ -53,6 +62,17 @@ class Project extends \yii\db\ActiveRecord
         return [
             TimestampBehavior::className(),
             BlameableBehavior::className(),
+            'saveRelations' => [
+              'class' => SaveRelationsBehavior::className(),
+              'relations' => ['projectUsers'],
+            ],
+        ];
+    }
+
+    public function transactions()
+    {
+        return [
+            self::SCENARIO_DEFAULT => self::OP_ALL,
         ];
     }
 
@@ -76,7 +96,7 @@ class Project extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCreatedBy()
+    public function getCreator()
     {
         return $this->hasOne(User::className(), ['id' => 'created_by']);
     }
@@ -84,7 +104,7 @@ class Project extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getUpdatedBy()
+    public function getUpdater()
     {
         return $this->hasOne(User::className(), ['id' => 'updated_by']);
     }
@@ -105,4 +125,6 @@ class Project extends \yii\db\ActiveRecord
     {
         return new \common\models\query\ProjectQuery(get_called_class());
     }
+
+    
 }

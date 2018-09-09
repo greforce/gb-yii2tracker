@@ -26,7 +26,7 @@ use yii\web\IdentityInterface;
  */
 class User extends ActiveRecord implements IdentityInterface
 {
-    private $_password;
+    private $password;
     const STATUS_DELETED = 0;
     const STATUS_ACTIVE = 10;
     const SCENARIO_ADMIN_CREATE = 'admin_create';
@@ -51,6 +51,8 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function behaviors()
     {
+        $host = Yii::$app->params['front.schema'] . Yii::$app->params['front.domain'];
+
         return [
             TimestampBehavior::className(),
             [
@@ -59,7 +61,7 @@ class User extends ActiveRecord implements IdentityInterface
                 'scenarios' => [self::SCENARIO_ADMIN_CREATE, self::SCENARIO_ADMIN_UPDATE],
                 'placeholder' => '@app/modules/user/assets/images/userpic.jpg',
                 'path' => '@frontend/web/upload/avatar/{id}',
-                'url' => 'http://y2aa-frontend.test/upload/avatar/{id}',
+                'url' => $host . '/upload/avatar/{id}',
                 'thumbs' => [
                     self::AVATAR_THUMB => ['width' => 50, 'height' =>50],
                     self::AVATAR_PREVIEW => ['width' => 200, 'height' => 200],
@@ -193,11 +195,11 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * Gets password from the model (always null)
+     * Gets password
      */
     public function getPassword()
     {
-        return $this->_password;
+        return $this->password;
     }
 
     /**
@@ -207,8 +209,10 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function setPassword($password)
     {
-        $this->password_hash = Yii::$app->security->generatePasswordHash($password);
-        $this->_password = $password;
+        if (!$password) {
+            $this->password_hash = Yii::$app->security->generatePasswordHash($password);
+        }
+        $this->password = $password;
     }
 
     /**
@@ -233,5 +237,15 @@ class User extends ActiveRecord implements IdentityInterface
     public function removePasswordResetToken()
     {
         $this->password_reset_token = null;
+    }
+
+    public function getProjectUsers()
+    {
+        return $this->hasMany(ProjectUser::className(), ['user_id' => 'id']);
+    }
+
+    public function getProjects()
+    {
+        return $this->hasMany(Project::className(), ['id' => 'project_id'])->via('projectUsers');
     }
 }

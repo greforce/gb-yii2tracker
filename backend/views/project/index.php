@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
+use \common\models\Project;
 /* @var $this yii\web\View */
 /* @var $searchModel common\models\ProjectSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
@@ -24,15 +25,20 @@ $this->params['breadcrumbs'][] = $this->title;
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
         'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
-
             'id',
             'title',
+            [
+                'attribute' => 'active',
+                'filter' => Project::STATUSES,
+                'value' => function($model) {
+                    return Project::STATUSES[$model->active];
+                },
+            ],
             'description:ntext',
-            'created_by',
-            'updated_by',
-            //'created_at',
-            //'updated_at',
+            ['attribute' => 'creator.username', 'label' => 'Creator'],
+            ['attribute' => 'updater.username', 'label' => 'Updater'],
+            'created_at:datetime',
+            'updated_at:datetime',
 
             ['class' => 'yii\grid\ActionColumn'],
         ],

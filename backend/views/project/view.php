@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\widgets\DetailView;
+use \common\models\Project;
 
 /* @var $this yii\web\View */
 /* @var $model common\models\Project */
@@ -30,6 +31,13 @@ $this->params['breadcrumbs'][] = $this->title;
         'attributes' => [
             'id',
             'title',
+            [
+                'attribute' => 'active',
+                'filter' => Project::STATUSES,
+                'value' => function($model) {
+                    return Project::STATUSES[$model->active];
+                },
+            ],
             'description:ntext',
             'created_by',
             'updated_by',
