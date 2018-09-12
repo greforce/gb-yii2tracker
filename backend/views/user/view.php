@@ -2,16 +2,16 @@
 
 use yii\helpers\Html;
 use yii\widgets\DetailView;
-use \common\models\Project;
+use \common\models\User;
 
 /* @var $this yii\web\View */
-/* @var $model common\models\Project */
+/* @var $model common\models\User */
 
-$this->title = $model->title;
-$this->params['breadcrumbs'][] = ['label' => 'Projects', 'url' => ['index']];
+$this->title = $model->id;
+$this->params['breadcrumbs'][] = ['label' => 'Users', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="project-view">
+<div class="user-view">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
@@ -29,20 +29,17 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= DetailView::widget([
         'model' => $model,
         'attributes' => [
-            'id',
-            'title',
+            'username',
+            'email:email',
             [
-                'attribute' => 'active',
-                'filter' => Project::STATUSES,
+                'attribute' => 'status',
+                'filter' => User::STATUSES,
                 'value' => function($model) {
-                    return Project::STATUSES[$model->active];
+                    return User::STATUSES[$model->status];
                 },
             ],
-            'description:ntext',
-            'created_by',
-            'updated_by',
-            'created_at',
-            'updated_at',
+            'created_at:datetime',
+            'updated_at:datetime',
         ],
     ]) ?>
 

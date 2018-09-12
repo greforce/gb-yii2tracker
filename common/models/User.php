@@ -16,16 +16,27 @@ use yii\web\IdentityInterface;
  * @property string $password_reset_token
  * @property string $email
  * @property string $auth_key
+ * @property string $avatar
  * @property integer $status
  * @property integer $created_at
  * @property integer $updated_at
  * @property string $password write-only password
+ *
+ * @mixin getThumbUploadUrl
  */
 class User extends ActiveRecord implements IdentityInterface
 {
+    private $password;
     const STATUS_DELETED = 0;
     const STATUS_ACTIVE = 10;
-
+    const SCENARIO_ADMIN_CREATE = 'admin_create';
+    const SCENARIO_ADMIN_UPDATE = 'admin_update';
+    const STATUSES = [
+        self::STATUS_DELETED => 'удален',
+        self::STATUS_ACTIVE => 'активен',
+    ];
+    const AVATAR_THUMB = 'thumb';
+    const AVATAR_PREVIEW = 'preview';
 
     /**
      * {@inheritdoc}
@@ -40,8 +51,22 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function behaviors()
     {
+        $host = Yii::$app->params['front.schema'] . Yii::$app->params['front.domain'];
+
         return [
             TimestampBehavior::className(),
+            [
+                'class' => \mohorev\file\UploadImageBehavior::class,
+                'attribute' => 'avatar',
+                'scenarios' => [self::SCENARIO_ADMIN_CREATE, self::SCENARIO_ADMIN_UPDATE],
+                'placeholder' => '@app/modules/user/assets/images/userpic.jpg',
+                'path' => '@frontend/web/upload/avatar/{id}',
+                'url' => $host . '/upload/avatar/{id}',
+                'thumbs' => [
+                    self::AVATAR_THUMB => ['width' => 50, 'height' =>50],
+                    self::AVATAR_PREVIEW => ['width' => 200, 'height' => 200],
+                ],
+            ],
         ];
     }
 
@@ -53,7 +78,23 @@ class User extends ActiveRecord implements IdentityInterface
         return [
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
+            [['password', 'email', 'username'], 'required', 'on' => [self::SCENARIO_ADMIN_CREATE, self::SCENARIO_ADMIN_UPDATE]],
+            ['email', 'email', 'on' => [self::SCENARIO_ADMIN_CREATE, self::SCENARIO_ADMIN_UPDATE]],
+            ['username', 'unique', 'on' => [self::SCENARIO_ADMIN_CREATE, self::SCENARIO_ADMIN_UPDATE]],
+            ['avatar', 'image', 'extensions' => 'jpg, jpeg, gif, png', 'on' => [self::SCENARIO_ADMIN_CREATE, self::SCENARIO_ADMIN_UPDATE]],
         ];
+    }
+
+    public function beforeSave($insert)
+    {
+        if (!parent::beforeSave($insert)) {
+            return false;
+        }
+
+        if ($insert) {
+            $this->generateAuthKey();
+        }
+        return true;
     }
 
     /**
@@ -154,13 +195,25 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * Gets password
+     */
+    public function getPassword()
+    {
+        return $this->password;
+    }
+
+    /**
      * Generates password hash from password and sets it to the model
      *
      * @param string $password
      */
     public function setPassword($password)
     {
-        $this->password_hash = Yii::$app->security->generatePasswordHash($password);
+        $this->password = $password;
+        if ($password) {
+            $this->password_hash = Yii::$app->security->generatePasswordHash($password);
+        }
+
     }
 
     /**
@@ -185,5 +238,15 @@ class User extends ActiveRecord implements IdentityInterface
     public function removePasswordResetToken()
     {
         $this->password_reset_token = null;
+    }
+
+    public function getProjectUsers()
+    {
+        return $this->hasMany(ProjectUser::className(), ['user_id' => 'id']);
+    }
+
+    public function getProjects()
+    {
+        return $this->hasMany(Project::className(), ['id' => 'project_id'])->via('projectUsers');
     }
 }
