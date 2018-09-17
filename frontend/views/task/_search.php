@@ -28,6 +28,8 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'executor_id') ?>
 
+    <?= $form->field($model, 'project_id') ?>
+
     <?php // echo $form->field($model, 'started_at') ?>
 
     <?php // echo $form->field($model, 'completed_at') ?>

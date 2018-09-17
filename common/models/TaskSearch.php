@@ -68,6 +68,7 @@ class TaskSearch extends Task
             'updated_by' => $this->updated_by,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'project_id' => $this->project_id,
         ]);
 
         $query->andFilterWhere(['like', 'title', $this->title])

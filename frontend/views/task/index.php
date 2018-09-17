@@ -28,9 +28,9 @@ $this->params['breadcrumbs'][] = $this->title;
         'filterModel' => $searchModel,
         'columns' => [
             [
-                'attribute' => 'project.title',
+                'attribute' => 'project_id',
                 'label' => 'Project',
-                'filter' => 'project_id',
+                'filter' => Project::find()->select('id')->column(),
                 'value' => function($model) {
                   return Html::a($model->project->title, ['project/view', 'id' => $model->project->id]);
                 },
@@ -40,9 +40,9 @@ $this->params['breadcrumbs'][] = $this->title;
             'description:ntext',
             'estimation:datetime',
             [
-                'attribute' => 'executor.username',
+                'attribute' => 'executor_id',
                 'label' => 'Executor',
-                'filter' => 'executor_id',
+                'filter' => User::find()->select('id')->column(),
                 'value' => function($model) {
                   return Html::a(User::findOne($model->executor_id)->username, ['user/view', 'id' => $model->executor_id]);
                 },
