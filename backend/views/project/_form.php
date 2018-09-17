@@ -28,13 +28,7 @@ use unclead\multipleinput\MultipleInput;
 
     <?= $form->field($model, 'description')->textarea(['rows' => 6]) ?>
 
-    <?= $form->field($model, 'created_by')->textInput() ?>
-
-    <?= $form->field($model, 'updated_by')->textInput() ?>
-
-    <?= $form->field($model, 'created_at')->textInput() ?>
-
-    <?= $form->field($model, 'updated_at')->textInput() ?>
+<?php if(!$model->isNewRecord) {?>
 
     <?= $form->field($model, Project::RELATION_PROJECT_USERS)
         ->widget(MultipleInput::className(), [
@@ -62,6 +56,8 @@ use unclead\multipleinput\MultipleInput;
                   ],
               ]
           ])->label(false) ?>
+
+<?php }?>
 
     <div class="form-group row">
       <div class="col-sm-offset-2">

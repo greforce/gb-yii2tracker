@@ -2,10 +2,16 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use common\models\Project;
 
 /* @var $this yii\web\View */
 /* @var $model common\models\Task */
 /* @var $form yii\widgets\ActiveForm */
+$projects = Project::find()
+  ->byUser(Yii::$app->user->identity)
+  ->select('title')
+  ->indexBy('id')
+  ->column();
 ?>
 
 <div class="task-form">
@@ -18,19 +24,7 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'estimation')->textInput() ?>
 
-    <?= $form->field($model, 'executor_id')->textInput() ?>
-
-    <?= $form->field($model, 'started_at')->textInput() ?>
-
-    <?= $form->field($model, 'completed_at')->textInput() ?>
-
-    <?= $form->field($model, 'created_by')->textInput() ?>
-
-    <?= $form->field($model, 'updated_by')->textInput() ?>
-
-    <?= $form->field($model, 'created_at')->textInput() ?>
-
-    <?= $form->field($model, 'updated_at')->textInput() ?>
+    <?= $form->field($model, 'project_id')->dropDownList($projects) ?>
 
     <div class="form-group">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>

@@ -40,6 +40,18 @@ return [
                     'class' => 'yii\log\FileTarget',
                     'levels' => ['error', 'warning'],
                 ],
+                [
+                    'class' => 'yii\log\FileTarget',
+                    'levels' => ['info'],
+                    'categories'=> ['userlogin'],
+                    'logFile' => "@runtime/logs/logins.log",
+                ],
+                [
+                    'class' => 'yii\log\FileTarget',
+                    'levels' => ['info'],
+                    'categories'=> ['loginerror'],
+                    'logFile' => "@runtime/logs/errors.log",
+                ],
             ],
         ],
         'errorHandler' => [

@@ -17,27 +17,30 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php Pjax::begin(); ?>
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
-    <p>
-        <?= Html::a('Create Project', ['create'], ['class' => 'btn btn-success']) ?>
-    </p>
-
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
-        // 'filterModel' => $searchModel,
+        'filterModel' => $searchModel,
         'columns' => [
             [
                 'attribute' => 'title',
                 'value' => function($model) {
-                  return Html::a($model->title, ['update', 'id' => $model->id]);
+                  return Html::a($model->title, ['view', 'id' => $model->id]);
                 },
                 'format' => 'html',
             ],
             [
                 'attribute' => Project::RELATION_PROJECT_USERS . ' role',
                 'value' => function($model) {
-                  return join(',', $model->getProjectUsers()->where(['user_id' => Yii::$app->user->id])->select('role')->column());
+                  return join(',', Yii::$app->projectService->getRoles($model, Yii::$app->user->identity));
                 },
                 'format' => 'html',
+            ],
+            [
+                'attribute' => 'active',
+                'filter' => Project::STATUSES,
+                'value' => function($model) {
+                    return Project::STATUSES[$model->active];
+                },
             ],
             'description:ntext',
             [
@@ -57,7 +60,6 @@ $this->params['breadcrumbs'][] = $this->title;
             'created_at:datetime',
             'updated_at:datetime',
 
-            ['class' => 'yii\grid\ActionColumn'],
         ],
     ]); ?>
     <?php Pjax::end(); ?>

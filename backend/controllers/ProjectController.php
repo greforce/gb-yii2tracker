@@ -9,6 +9,7 @@ use common\models\User;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
 
 /**
  * ProjectController implements the CRUD actions for Project model.
@@ -27,6 +28,15 @@ class ProjectController extends Controller
                     'delete' => ['POST'],
                 ],
             ],
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ]
+                ]
+            ]
         ];
     }
 
@@ -87,6 +97,8 @@ class ProjectController extends Controller
     {
         $model = $this->findModel($id);
         $projectUsers = $model->getUsersData();
+        $model->updated_by = Yii::$app->user->id;
+        $model->updated_at = time();
 
         if ($this->loadModel($model) && $model->save()) {
             if ($diffRoles = array_diff_assoc($model->getUsersData(), $projectUsers)) {
