@@ -21,6 +21,9 @@ return [
               Yii::$app->emailService->send($e->user->email, 'New Role' . $e->role, $views, $data);
             },
         ],
+        'taskService' => [
+            'class' => \common\services\TaskService::class,
+        ],
         'i18n' => [
             'translations' => [
                 'yii2mod.comments' => [

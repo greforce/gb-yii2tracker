@@ -119,11 +119,32 @@ class TaskController extends Controller
     public function actionTake($id)
     {
         $model = $this->findModel($id);
-        $model->executor_id = Yii::$app->user->id;
-        $model->started_at = time();
+        Yii::$app->taskService->takeTask($model, Yii::$app->user->identity);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             Yii::$app->session->setFlash('success', 'Успешно взяли в работу');
+            return $this->redirect(['view', 'id' => $model->id]);
+        }
+
+        return $this->render('update', [
+            'model' => $model,
+        ]);
+    }
+
+    /**
+     * Takes an existing Task model (updates executor).
+     * If update is successful, the browser will be redirected to the 'view' page.
+     * @param integer $id
+     * @return mixed
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionComplete($id)
+    {
+        $model = $this->findModel($id);
+        Yii::$app->taskService->completeTask($model, Yii::$app->user->identity);
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->session->setFlash('success', 'Задача завершена');
             return $this->redirect(['view', 'id' => $model->id]);
         }
 

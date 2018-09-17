@@ -50,13 +50,13 @@ class ProjectService extends \yii\base\Component
         return array_intersect($this->getRoles($project, $user), $roles);
     }
 
-    public function canUpdate(Project $project, User $user)
-    {
-        return $this->hasRoles($project, $user, ProjectUser::ROLE_MANAGER);
-    }
-
-    public function canTake(Project $project, User $user)
-    {
-        return $this->hasRoles($project, $user, ProjectUser::ROLE_DEVELOPER);
-    }
+    // public function canUpdate(Project $project, User $user)
+    // {
+    //     return $this->hasRoles($project, $user, ProjectUser::ROLE_MANAGER);
+    // }
+    //
+    // public function canTake(Project $project, User $user)
+    // {
+    //     return $this->hasRoles($project, $user, ProjectUser::ROLE_DEVELOPER);
+    // }
 }
