@@ -34,4 +34,29 @@ class ProjectService extends \yii\base\Component
         $event->role = $role;
         $this->trigger(self::EVENT_ASSIGN_ROLE, $event);
     }
+
+    public function getRoles(Project $project, User $user)
+    {
+        return $project->getProjectUsers()->byUser($user->id)->select('role')->column();
+    }
+
+    public function hasRole(Project $project, User $user, $role)
+    {
+        return in_array($role, $this->getRoles($project, $user));
+    }
+
+    public function hasRoles(Project $project, User $user, $roles)
+    {
+        return array_intersect($this->getRoles($project, $user), $roles);
+    }
+
+    public function canUpdate(Project $project, User $user)
+    {
+        return $this->hasRoles($project, $user, ProjectUser::ROLE_MANAGER);
+    }
+
+    public function canTake(Project $project, User $user)
+    {
+        return $this->hasRoles($project, $user, ProjectUser::ROLE_DEVELOPER);
+    }
 }

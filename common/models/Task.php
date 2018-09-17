@@ -43,7 +43,7 @@ class Task extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['title', 'description', 'estimation', 'created_at'], 'required'],
+            [['title', 'description', 'estimation'], 'required'],
             [['description'], 'string'],
             [['estimation', 'executor_id', 'started_at', 'completed_at', 'created_by', 'updated_by', 'created_at', 'updated_at'], 'integer'],
             [['project_id'], 'exist', 'skipOnError' => true, 'targetClass' => Project::className(), 'targetAttribute' => ['project_id' => 'id']],
@@ -86,7 +86,7 @@ class Task extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCreatedBy()
+    public function getCreator()
     {
         return $this->hasOne(User::className(), ['id' => 'created_by']);
     }
@@ -110,7 +110,7 @@ class Task extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getUpdatedBy()
+    public function getUpdater()
     {
         return $this->hasOne(User::className(), ['id' => 'updated_by']);
     }

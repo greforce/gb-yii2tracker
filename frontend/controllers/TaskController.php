@@ -48,6 +48,9 @@ class TaskController extends Controller
         $searchModel = new TaskSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
+        $query = $dataProvider->query;
+        $query->byUser(Yii::$app->user->id);
+
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
@@ -97,6 +100,30 @@ class TaskController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->session->setFlash('success', 'Успешно');
+            return $this->redirect(['view', 'id' => $model->id]);
+        }
+
+        return $this->render('update', [
+            'model' => $model,
+        ]);
+    }
+
+    /**
+     * Takes an existing Task model (updates executor).
+     * If update is successful, the browser will be redirected to the 'view' page.
+     * @param integer $id
+     * @return mixed
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionTake($id)
+    {
+        $model = $this->findModel($id);
+        $model->executor_id = Yii::$app->user->id;
+        $model->started_at = time();
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->session->setFlash('success', 'Успешно взяли в работу');
             return $this->redirect(['view', 'id' => $model->id]);
         }
 

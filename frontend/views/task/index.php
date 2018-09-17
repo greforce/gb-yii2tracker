@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
+use common\models\ProjectUser;
 /* @var $this yii\web\View */
 /* @var $searchModel common\models\TaskSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
@@ -24,21 +25,43 @@ $this->params['breadcrumbs'][] = $this->title;
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
         'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
-
-            'id',
+            'project.title',
             'title',
             'description:ntext',
-            'estimation',
-            'executor_id',
-            //'started_at',
-            //'completed_at',
-            //'created_by',
-            //'updated_by',
-            //'created_at',
-            //'updated_at',
+            'estimation:datetime',
+            'executor.username',
+            'started_at:datetime',
+            'completed_at:datetime',
+            'creator.username',
+            'updater.username',
+            'created_at:datetime',
+            'updated_at:datetime',
 
-            ['class' => 'yii\grid\ActionColumn'],
+            ['class' => 'yii\grid\ActionColumn',
+                'template' => '{view} {update} {delete} {take}',
+                'buttons' => [
+                    'take' => function($url, $model, $key) {
+                      $icon = \yii\bootstrap\Html::icon('hand-right');
+                        return Html::a($icon, ['task/take', 'id' => $model->id], [
+                          'data' => [
+                              'confirm' => 'Take this task?',
+                              'method' => 'post',
+                          ],
+                        ]);
+                    }
+                ],
+                'visibleButtons' => [
+                    'update' => function($model, $key, $index) {
+                        return Yii::$app->projectService->hasRole($model->project, Yii::$app->user->identity, ProjectUser::ROLE_MANAGER);
+                    },
+                    'delete' => function($model, $key, $index) {
+                        return Yii::$app->projectService->hasRole($model->project, Yii::$app->user->identity, ProjectUser::ROLE_MANAGER);
+                    },
+                    'take' => function($model, $key, $index) {
+                        return Yii::$app->projectService->hasRole($model->project, Yii::$app->user->identity, ProjectUser::ROLE_DEVELOPER);
+                    },
+                ]
+            ],
         ],
     ]); ?>
     <?php Pjax::end(); ?>

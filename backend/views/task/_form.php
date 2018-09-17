@@ -24,11 +24,7 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'completed_at')->textInput() ?>
 
-    <?= $form->field($model, 'created_by')->textInput() ?>
-
     <?= $form->field($model, 'updated_by')->textInput() ?>
-
-    <?= $form->field($model, 'created_at')->textInput() ?>
 
     <?= $form->field($model, 'updated_at')->textInput() ?>
 

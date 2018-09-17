@@ -97,6 +97,8 @@ class ProjectController extends Controller
     {
         $model = $this->findModel($id);
         $projectUsers = $model->getUsersData();
+        $model->updated_by = Yii::$app->user->id;
+        $model->updated_at = time();
 
         if ($this->loadModel($model) && $model->save()) {
             if ($diffRoles = array_diff_assoc($model->getUsersData(), $projectUsers)) {
