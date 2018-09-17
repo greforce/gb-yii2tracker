@@ -6,6 +6,7 @@ use yii\widgets\Pjax;
 use common\models\ProjectUser;
 use common\models\User;
 use common\models\Project;
+use yii\helpers\ArrayHelper;
 /* @var $this yii\web\View */
 /* @var $searchModel common\models\TaskSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
@@ -30,7 +31,11 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'project_id',
                 'label' => 'Project',
-                'filter' => Project::find()->select('id')->column(),
+                'filter' => ArrayHelper::map(Project::find()
+                  ->select('id, title')
+                  ->where(['id' => $searchModel->find()->select('project_id')])
+                  ->asArray()
+                  ->all(), 'id', 'title'),
                 'value' => function($model) {
                   return Html::a($model->project->title, ['project/view', 'id' => $model->project->id]);
                 },
@@ -42,7 +47,11 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'executor_id',
                 'label' => 'Executor',
-                'filter' => User::find()->select('id')->column(),
+                'filter' => ArrayHelper::map(User::find()
+                  ->select('id, username')
+                  ->where(['id' => $searchModel->find()->select('executor_id')])
+                  ->asArray()
+                  ->all(), 'id', 'username'),
                 'value' => function($model) {
                   return Html::a(User::findOne($model->executor_id)->username, ['user/view', 'id' => $model->executor_id]);
                 },
@@ -51,8 +60,13 @@ $this->params['breadcrumbs'][] = $this->title;
             'started_at:datetime',
             'completed_at:datetime',
             [
-                'attribute' => 'creator.username',
+                'attribute' => 'created_by',
                 'label' => 'Creator',
+                'filter' => ArrayHelper::map(User::find()
+                  ->select('id, username')
+                  ->where(['id' => $searchModel->find()->select('created_by')])
+                  ->asArray()
+                  ->all(), 'id', 'username'),
                 'value' => function($model) {
                   return Html::a(User::findOne($model->created_by)->username, ['user/view', 'id' => $model->created_by]);
                 },

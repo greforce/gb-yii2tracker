@@ -28,7 +28,7 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'executor_id') ?>
 
-    <?= $form->field($model, 'project_id') ?>
+    <?= $form->field($model->project_id, 'project_id') ?>
 
     <?php // echo $form->field($model, 'started_at') ?>
 
